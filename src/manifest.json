@@ -1,0 +1,17 @@
+{
+	"manifest_version": 2,
+	"name": "Tweet Like Percentage",
+	"version": "0.1.0",
+	"description": "Replaces the likes and views with a like percentage.",
+	"content_scripts": [
+		{
+			"js": [
+				"package/jquery-3.6.3.min.js",
+				"main.js"
+			],
+			"matches": [
+				"https://www.twitter.com/*"
+			]
+		}
+	]
+}
