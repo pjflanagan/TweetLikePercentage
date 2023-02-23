@@ -2,9 +2,9 @@
 const SELECTORS = {
   tweets: '[data-testid="tweet"]',
   tweetLikes: '[data-testid="like"]',
-  tweetLikeText: '[data-testid="app-text-transition-container"] span span',
-  tweetRetweets: undefined,
+  tweetRetweets: '[data-testid="retweet"]',
   tweetViews: '[role="link"]',
+  tweetButtonText: '[data-testid="app-text-transition-container"] span span',
 }
 
 function getTweets() {
@@ -15,6 +15,14 @@ function getTweetLikeCount(tweet) {
   return parseInt(
     $(tweet)
       .find(SELECTORS.tweetLikes)
+      .attr('aria-label')
+  );
+}
+
+function getTweetReweetCount(tweet) {
+  return parseInt(
+    $(tweet)
+      .find(SELECTORS.tweetRetweets)
       .attr('aria-label')
   );
 }
@@ -32,32 +40,37 @@ function getTweetViewCount(tweet) {
 function replaceTweetLikeCountWithTweetLikePercentage(tweet, percent) {
   $(tweet)
     .find(SELECTORS.tweetLikes)
-    .find(SELECTORS.tweetLikeText)
+    .find(SELECTORS.tweetButtonText)
+    .text(`${percent.toFixed(2)}%`);
+}
+
+function replaceTweetRetweetCountWithTweetRetweetPercentage(tweet, percent) {
+  $(tweet)
+    .find(SELECTORS.tweetRetweets)
+    .find(SELECTORS.tweetButtonText)
     .text(`${percent.toFixed(2)}%`);
 }
 
 function scanAndModifyTweets() {
   const tweets = getTweets();
-  console.log(tweets);
+  // console.log(tweets);
   for (let i = 0; i < tweets.length; ++i) {
     const tweetLikeCount = getTweetLikeCount(tweets[i]);
+    const tweetRetweetCount = getTweetReweetCount(tweets[i]);
     const tweetViewCount = getTweetViewCount(tweets[i]);
-    console.log({ tweetLikeCount, tweetViewCount });
+    // console.log({ tweetRetweetCount, tweetLikeCount, tweetViewCount });
 
-    const likePercent = 100 * tweetLikeCount / (tweetViewCount + 1);
-    console.log({ likePercent });
+    if (tweetLikeCount && tweetViewCount) {
+      const likePercent = 100 * tweetLikeCount / tweetViewCount;
+      replaceTweetLikeCountWithTweetLikePercentage(tweets[i], likePercent);
+    }
+    if (tweetRetweetCount && tweetViewCount) {
+      const retweetPercent = 100 * tweetRetweetCount / tweetViewCount;
+      replaceTweetRetweetCountWithTweetRetweetPercentage(tweets[i], retweetPercent);
 
-    replaceTweetLikeCountWithTweetLikePercentage(tweets[i], likePercent);
+    }
   }
 }
-
-// let testTweets;
-// function testOneTweet() {
-//   testTweets = getTweets();
-//   getTweetLikeCount(testTweets[0])
-//   getTweetViewCount(testTweets[0])
-//   replaceTweetLikeCountWithTweetLikePercentage(testTweets[0], 74);
-// }
 
 window.onload = function() {
   setInterval(function(){
